@@ -3,8 +3,9 @@ import { useState } from "react";
 import styles from "./index.module.css";
 
 export default function Home() {
-  const [nameInput, setnameInput] = useState("");
-  const [interestInput, setInterestInput] = useState("");
+  const [nameInput, setNameInput] = useState("");
+     const [ageInput, setAgeInput] = useState("");
+      const [interestInput, setInterestInput] = useState("");
   const [result, setResult] = useState();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,7 +20,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: nameInput, interest: interestInput }),
+        body: JSON.stringify({ name: nameInput, interest: interestInput,  age: ageInput }),
       });
 
       const data = await response.json();
@@ -54,7 +55,14 @@ export default function Home() {
             name="name"
             placeholder="Enter your childs name"
             value={nameInput}
-            onChange={(e) => setnameInput(e.target.value)}
+            onChange={(e) => setNameInput(e.target.value)}
+          />
+          <input
+            type="text"
+            name="age"
+            placeholder="Enter your childs age"
+            value={ageInput}
+            onChange={(e) => setAgeInput(e.target.value)}
           />
           <input
             type="text"
