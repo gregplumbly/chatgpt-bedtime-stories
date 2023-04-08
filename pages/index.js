@@ -26,8 +26,12 @@ export default function Home() {
       if (response.status !== 200) {
         throw data.error || new Error(`Request failed with status ${response.status}`);
       }
-      setIsLoading(false);
+        setIsLoading(false);
+        console.log(data.result)
+
+    
       setResult(data.result);
+
 
     } catch(error) {
       // Consider implementing your own error handling logic here
@@ -55,14 +59,14 @@ export default function Home() {
           <input
             type="text"
             name="interest"
-            placeholder="Enter a topic of interest"
+            placeholder="Enter topics of interest separated by commas"
             value={interestInput}
             onChange={(e) => setInterestInput(e.target.value)}
           />
           <input type="submit" value="Generate a story" />
         </form>
 
-        {isLoading && <div>Creating your personalised bedtime story for {nameInput} It will appear here in less than 30 seconds</div>}
+        {isLoading && <div>Creating your personalised bedtime story for {nameInput}. It will appear here in less than 30 seconds!</div>}
         <div className={styles.result}>{result}</div>
       </main>
     </div>
