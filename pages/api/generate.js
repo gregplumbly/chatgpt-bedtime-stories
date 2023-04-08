@@ -15,8 +15,8 @@ export default async function (req, res) {
     return;
   }
 
-  const animal = req.body.animal || '';
-  if (animal.trim().length === 0) {
+  const name = req.body.name || '';
+  if (name.trim().length === 0) {
     res.status(400).json({
       error: {
         message: "Please enter a valid name",
@@ -39,7 +39,7 @@ export default async function (req, res) {
     const completion = await openai.createCompletion({
       model: "text-davinci-003",
       "max_tokens": 500,
-      prompt: generatePrompt(animal, interest),
+      prompt: generatePrompt(name, interest),
       temperature: 0.6,
     });
     res.status(200).json({ result: completion.data.choices[0].text });
@@ -60,10 +60,9 @@ export default async function (req, res) {
   }
 }
 
-function generatePrompt(animal, interest) {
-    console.log(interest)
-    console.log(animal, interest)
-  const capitalizedAnimal =
-    animal[0].toUpperCase() + animal.slice(1).toLowerCase();
-  return `Create a 400 word personalised bedtime story for a child named ${capitalizedAnimal} who is interested in ${interest}.`;
+function generatePrompt(name, interest) {
+
+  const capitalizedName =
+    name[0].toUpperCase() + name.slice(1).toLowerCase();
+  return `Create a 400 word personalised bedtime story for a child named ${capitalizedName} who is interested in ${interest}.`;
 }

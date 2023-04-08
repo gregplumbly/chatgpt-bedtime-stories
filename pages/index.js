@@ -3,31 +3,32 @@ import { useState } from "react";
 import styles from "./index.module.css";
 
 export default function Home() {
-  const [animalInput, setAnimalInput] = useState("");
+  const [nameInput, setnameInput] = useState("");
   const [interestInput, setInterestInput] = useState("");
   const [result, setResult] = useState();
+  const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(event) {
+    setResult("");
+    setIsLoading(true);
     event.preventDefault();
-    console.log(animalInput)
-    console.log(interestInput)
+
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ animal: animalInput, interest: interestInput }),
+        body: JSON.stringify({ name: nameInput, interest: interestInput }),
       });
 
       const data = await response.json();
       if (response.status !== 200) {
         throw data.error || new Error(`Request failed with status ${response.status}`);
       }
-
+      setIsLoading(false);
       setResult(data.result);
-      setAnimalInput("");
-      setInterestInput("");
+
     } catch(error) {
       // Consider implementing your own error handling logic here
       console.error(error);
@@ -46,10 +47,10 @@ export default function Home() {
         <form onSubmit={onSubmit}>
           <input
             type="text"
-            name="animal"
+            name="name"
             placeholder="Enter your childs name"
-            value={animalInput}
-            onChange={(e) => setAnimalInput(e.target.value)}
+            value={nameInput}
+            onChange={(e) => setnameInput(e.target.value)}
           />
           <input
             type="text"
@@ -60,6 +61,8 @@ export default function Home() {
           />
           <input type="submit" value="Generate a story" />
         </form>
+
+        {isLoading && <div>Creating your personalised bedtime story for {nameInput} It will appear here in less than 30 seconds</div>}
         <div className={styles.result}>{result}</div>
       </main>
     </div>
