@@ -1,13 +1,25 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./index.module.css";
 
 export default function Home() {
   const [nameInput, setNameInput] = useState("");
-     const [ageInput, setAgeInput] = useState("");
-      const [interestInput, setInterestInput] = useState("");
+  const [ageInput, setAgeInput] = useState("");
+  const [interestInput, setInterestInput] = useState("");
   const [result, setResult] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [audioSrc, setAudioSrc] = useState(null);
+  const [showSecondDiv, setShowSecondDiv] = useState(false);
+
+  useEffect(() => {
+    if (isLoading) {
+      const timer = setTimeout(() => {
+        setShowSecondDiv(true);
+      }, 10000); // Show the second div 5 seconds after isLoading is true
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
 
   async function onSubmit(event) {
     setResult("");
@@ -20,21 +32,25 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: nameInput, interest: interestInput,  age: ageInput }),
+        body: JSON.stringify({
+          name: nameInput,
+          interest: interestInput,
+          age: ageInput,
+        }),
       });
 
       const data = await response.json();
       if (response.status !== 200) {
-        throw data.error || new Error(`Request failed with status ${response.status}`);
+        throw (
+          data.error ||
+          new Error(`Request failed with status ${response.status}`)
+        );
       }
-        setIsLoading(false);
-        console.log(data.result)
+      setIsLoading(false);
 
-    
       setResult(data.result);
-
-
-    } catch(error) {
+      setAudioSrc(data.audioSrc);
+    } catch (error) {
       // Consider implementing your own error handling logic here
       console.error(error);
       alert(error.message);
@@ -48,7 +64,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h3>Personalise a bedtime story</h3>
+        <h3>Personalised audio bedtime stories</h3>
         <form onSubmit={onSubmit}>
           <input
             type="text"
@@ -73,8 +89,23 @@ export default function Home() {
           />
           <input type="submit" value="Generate a story" />
         </form>
-
-        {isLoading && <div>Creating your personalised bedtime story for {nameInput}. It will appear here in less than 30 seconds!</div>}
+        {isLoading && (
+          <div>
+            Creating your personalised bedtime story for {nameInput}. It will
+            appear below along with an audio player.
+          </div>
+        )}
+        {showSecondDiv && (
+          <div>
+            Synthesizing audio for {nameInput}'s story about {interestInput}...
+          </div>
+        )}
+        {audioSrc && (
+          <div>
+            <h2>Audio Player</h2>
+            <audio src={audioSrc} controls />
+          </div>
+        )}
         <div className={styles.result}>{result}</div>
       </main>
     </div>
