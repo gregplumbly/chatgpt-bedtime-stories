@@ -1,5 +1,4 @@
 import { Configuration, OpenAIApi } from "openai";
-import fs from "fs";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -26,19 +25,7 @@ async function postToAnotherAPI(story) {
     }
     const audioData = await response.arrayBuffer();
 
-    // Generate random filename
-    const filename = Math.random().toString(36).substring(7) + ".mp3";
-
-    fs.writeFile(
-      `./public/audio/${filename}`,
-      Buffer.from(audioData),
-      (err) => {
-        if (err) throw err;
-        console.log("The file has been saved!");
-      }
-    );
-
-    return `/audio/${filename}`;
+    return Buffer.from(audioData);
   } catch (error) {
     console.error("Error posting data to another API:", error.message);
   }
@@ -86,10 +73,14 @@ export default async function (req, res) {
     });
     const audio = await postToAnotherAPI(completion.data.choices[0].text);
 
-    res.status(200).json({
-      result: completion.data.choices[0].text,
-      audioSrc: audio,
-    });
+    res
+      .status(200)
+      .json({
+        result: completion.data.choices[0].text,
+        audioSrc: "data:audio/mpeg;base64," + audio.toString("base64"),
+      })
+      .setHeader("Content-Type", "audio/mpeg")
+      .send(audio);
   } catch (error) {
     // Consider adjusting the error handling logic for your use case
     if (error.response) {
