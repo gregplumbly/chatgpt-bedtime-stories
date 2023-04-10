@@ -35,6 +35,8 @@ async function postToAnotherAPI(story) {
       (err) => {
         if (err) throw err;
         console.log("The file has been saved!");
+      } else {
+        console.log("Problem saving");
       }
     );
 
