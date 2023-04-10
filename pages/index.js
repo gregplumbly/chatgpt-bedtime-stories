@@ -15,7 +15,7 @@ export default function Home() {
     if (isLoading) {
       const timer = setTimeout(() => {
         setShowSecondDiv(true);
-      }, 10000); // Show the second div 5 seconds after isLoading is true
+      }, 11000); // Show the second div 5 seconds after isLoading is true
 
       return () => clearTimeout(timer);
     }
