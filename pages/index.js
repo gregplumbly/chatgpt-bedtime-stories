@@ -21,13 +21,35 @@ export default function Home() {
     }
   }, [isLoading]);
 
+  async function generateAudio(story) {
+    try {
+      const response = await fetch("/api/generate-audio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ story }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error from /api/text-to-speech API");
+      }
+
+      const audioData = await response.arrayBuffer();
+      // Do something with the audio data, e.g., play it or save it to a file
+      setAudioSrc(URL.createObjectURL(new Blob([audioData])));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async function onSubmit(event) {
     setResult("");
     setIsLoading(true);
     event.preventDefault();
 
     try {
-      const response = await fetch("/api/generate", {
+      const response = await fetch("/api/generate-story", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +71,7 @@ export default function Home() {
       setIsLoading(false);
 
       setResult(data.result);
-      setAudioSrc(data.audioSrc);
+      generateAudio(data.result);
     } catch (error) {
       // Consider implementing your own error handling logic here
       console.error(error);

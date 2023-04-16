@@ -5,32 +5,6 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-async function postToAnotherAPI(story) {
-  try {
-    const response = await fetch(
-      "https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "audio/mpeg",
-          "xi-api-key": process.env.ELEVEN_LABS_API_KEY,
-        },
-        body: JSON.stringify({ text: story }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}`);
-    }
-    const audioData = await response.arrayBuffer();
-
-    return Buffer.from(audioData);
-  } catch (error) {
-    console.error("Error posting data to another API:", error.message);
-  }
-}
-
 export default async function (req, res) {
   if (!configuration.apiKey) {
     res.status(500).json({
@@ -71,16 +45,10 @@ export default async function (req, res) {
       prompt: generatePrompt(name, interest, age),
       temperature: 0.6,
     });
-    const audio = await postToAnotherAPI(completion.data.choices[0].text);
 
-    res
-      .status(200)
-      .json({
-        result: completion.data.choices[0].text,
-        audioSrc: "data:audio/mpeg;base64," + audio.toString("base64"),
-      })
-      .setHeader("Content-Type", "audio/mpeg")
-      .send(audio);
+    res.status(200).json({
+      result: completion.data.choices[0].text,
+    });
   } catch (error) {
     // Consider adjusting the error handling logic for your use case
     if (error.response) {
@@ -90,7 +58,7 @@ export default async function (req, res) {
       console.error(`Error with OpenAI API request: ${error.message}`);
       res.status(500).json({
         error: {
-          message: "An error occurred during your request.",
+          message: `An error occurred during your request. ${error}`,
         },
       });
     }
